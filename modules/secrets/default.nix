@@ -122,6 +122,11 @@ in
               default = "root";
             };
 
+            group = mkOption {
+              type = str;
+              default = "root";
+            };
+
             mode = mkOption {
               type = str;
               default = "0400";
@@ -168,6 +173,7 @@ in
         (n: v: {
           path = mkIf (v.mount.path != null) v.mount.path;
           owner = v.mount.user;
+          group = v.mount.group;
           mode = v.mount.mode;
         })
         (filterAttrs

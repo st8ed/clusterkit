@@ -12,5 +12,6 @@
     ./flannel.nix
     ./kubelet.nix
     ./scheduler.nix
+    ./strongswan.nix
   ];
 }

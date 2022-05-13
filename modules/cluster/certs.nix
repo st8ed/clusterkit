@@ -77,6 +77,10 @@ let
         profile = "client";
       };
     })
+
+    (mkCA "strongSwan" {
+      site = { fqdn, ... }: { cn = fqdn; profile = "server"; };
+    })
   ];
 
   mkCA = prefix: clients: {
