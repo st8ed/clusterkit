@@ -1,6 +1,6 @@
 {
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-21.11";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-22.05";
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -30,13 +30,15 @@
 
       forAllSystems = lib.genAttrs supportedSystems;
 
-      mkCluster = module: lib.evalModules {
+      mkCluster = self: module: lib.evalModules {
         modules = [
           {
             _module.args = {
               pkgs = nixpkgsFor."${buildSystem}";
               terraformModulesPath = ./resources;
-              inherit inputs;
+              inputs = {
+                inherit self;
+              };
             };
           }
           ./modules/cluster
@@ -56,7 +58,7 @@
 
       nixosModule.imports = [
         sops-nix.nixosModules.sops
-        ({ pkgs, ... }: { environment.systemPackages = with pkgs; [ gnupg ]; })
+        ({ pkgs, ... }: { environment.systemPackages = with pkgs; [ gnupg nixos-switch ]; })
       ];
 
       apps = forAllSystems (system: {
