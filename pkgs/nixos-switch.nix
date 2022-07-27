@@ -4,7 +4,7 @@ pkgs.writeShellApplication {
   text = ''
     path=$1
     profile=/nix/var/nix/profiles/system
-    generations="+10"
+    # generations="+10"
 
     current="$(readlink /run/current-system)"
     if [ "$current" = "$path" ]; then
@@ -27,8 +27,8 @@ pkgs.writeShellApplication {
     hostname_old="$(hostname)"
 
     "$path"/bin/switch-to-configuration switch
-    nix-env -p "$profile" --delete-generations "$generations"
-    nix-store --gc
+    # nix-env -p "$profile" --delete-generations "$generations"
+    # nix-store --gc
 
     hostname_new="$(hostname)"
 

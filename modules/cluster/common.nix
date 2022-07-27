@@ -2,35 +2,39 @@
 
 with lib;
 
+let
+  clusterConfig = config;
+in
 {
   options = with types; {
     nodes = mkOption {
-      type = attrsOf (submodule ({ name, ... }: {
+      type = attrsOf (submodule ({ name, config, ... }: {
+        options.system = mkOption {
+          type = str;
+          default = pkgs.system;
+        };
+
         options.config = mkOption {
-          type =
-            let
-              clusterConfig = config;
-            in
-            lib.mkOptionType {
-              name = "Cluster node NixOS config";
-              merge = loc: defs: (lib.nixosSystem {
-                system = pkgs.system;
-                modules =
-                  let
-                    extraConfig = {
-                      _file = "module at ${__curPos.file}:${toString __curPos.line}";
-                      config = {
-                        _module.args = { inherit clusterConfig; };
-                        networking.hostName = name;
-                      };
+          type = lib.mkOptionType {
+            name = "Cluster node NixOS config";
+            merge = loc: defs: (lib.nixosSystem {
+              system = config.system;
+              modules =
+                let
+                  extraConfig = {
+                    _file = "module at ${__curPos.file}:${toString __curPos.line}";
+                    config = {
+                      _module.args = { inherit clusterConfig; };
+                      networking.hostName = name;
                     };
-                  in
-                  [
-                    ./..
-                    extraConfig
-                  ] ++ (map (x: x.value) defs);
-              }).config;
-            };
+                  };
+                in
+                [
+                  ./..
+                  extraConfig
+                ] ++ (map (x: x.value) defs);
+            }).config;
+          };
         };
       }));
     };

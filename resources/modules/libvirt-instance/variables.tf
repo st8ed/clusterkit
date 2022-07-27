@@ -50,6 +50,11 @@ variable "network_name" {
     type = string
 }
 
+variable "mac" {
+    type = string
+    default = ""
+}
+
 output "access_address" {
     value = try(libvirt_domain.domain.network_interface.0.addresses.0, "")
 }

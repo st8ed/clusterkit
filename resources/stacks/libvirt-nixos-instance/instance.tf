@@ -1,3 +1,7 @@
+output "access_address" {
+  value = module.libvirt-instance.access_address
+}
+
 module "libvirt-instance" {
     source = "../../modules/libvirt-instance"
 
@@ -14,4 +18,5 @@ module "libvirt-instance" {
     extra_disks = var.extra_disks
 
     network_name = var.network_name
+    mac = var.mac
 }

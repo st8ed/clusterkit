@@ -10,6 +10,4 @@ variable "extra_disks" {
     default = [] 
 }
 variable "network_name" { default = "default" }
-
-variable "system_path" { }
-variable "secrets_path" { }
+variable "mac" { default = "" }

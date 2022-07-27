@@ -43,12 +43,7 @@ with lib;
     };
 
     terraformModules = mkOption {
-      default = with pkgs; runCommandNoCC "terraform-modules" { } ''
-        cp -r ${terraformModulesPath} $out
-        substituteInPlace \
-            $out/modules/nixos-deployment/main.tf \
-                --subst-var-by "nixos-deploy" "${nixos-deploy}"
-      '';
+      default = terraformModulesPath;
     };
   };
 }

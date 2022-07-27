@@ -21,7 +21,6 @@ with lib;
       kubelet.seedDockerImages = lib.mkForce [ ];
 
       addons.dns.enable = false;
-      addons.dashboard.enable = false;
     };
 
     networking = {
@@ -30,7 +29,7 @@ with lib;
 
     services.openssh = {
       passwordAuthentication = false;
-      challengeResponseAuthentication = false;
+      kbdInteractiveAuthentication = false;
     };
 
     users.users.root.openssh.authorizedKeys.keys = mkForce [

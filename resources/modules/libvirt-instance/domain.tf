@@ -19,6 +19,7 @@ resource "libvirt_domain" "domain" {
 
   network_interface {
     network_name     = var.network_name
+    mac = var.mac
     wait_for_lease = true 
   }
 

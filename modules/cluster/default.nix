@@ -6,6 +6,7 @@
     ./build.nix
     ./certs.nix
     ./common.nix
+    ./deployments.nix
     ./images.nix
     ./secrets.nix
   ];
