@@ -4,7 +4,7 @@ with lib;
 
 let
   cfg = config.networking.remoteNetwork;
-  inherit (cfg) local remote;
+  inherit (cfg) local;
 
   ports.ike = 500;
   ports.nat_t = 4500;
@@ -14,7 +14,7 @@ in
   options.networking.remoteNetwork = with types; {
     enable = mkEnableOption "";
     local = mkOption { type = anything; };
-    remote = mkOption { type = anything; };
+    connections = mkOption { type = anything; };
   };
 
   config = mkIf cfg.enable {
@@ -46,7 +46,7 @@ in
       '';
       swanctl = {
         authorities.ca.cacert = "ca.pem";
-        connections.net-net = {
+        connections = lib.mapAttrs (name: remote: {
           version = 2;
           proposals = [ "aes256-sha384-x25519" ];
           mobike = true;
@@ -66,7 +66,7 @@ in
           };
 
           children = {
-            net-net = {
+            "${name}" = {
               esp_proposals = [ "aes256gcm16-x25519" ];
 
               local_ts = local.ts;
@@ -76,7 +76,7 @@ in
               start_action = "trap";
             };
           };
-        };
+        }) cfg.connections;
       };
     };
 
