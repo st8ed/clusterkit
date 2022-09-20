@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, lib, ... }:
 
 with lib;
 
@@ -10,7 +10,7 @@ let
     expiry = "2190h";
   };
 
-  mkCsr = name: { cn, altNames ? [ ], organization ? null }: with pkgs; writeText "${name}-csr.json" (builtins.toJSON (lib.attrsets.recursiveUpdate defaults.csr {
+  mkCsr = name: { cn, altNames ? [ ], organization ? null }: builtins.toFile "${name}-csr.json" (builtins.toJSON (lib.attrsets.recursiveUpdate defaults.csr {
     CN = cn;
     hosts = [ cn ] ++ altNames;
     names = if organization == null then null else [
@@ -18,7 +18,7 @@ let
     ];
   }));
 
-  caConfig = pkgs.writeText "ca-config.json" (builtins.toJSON {
+  caConfig = builtins.toFile "ca-config.json" (builtins.toJSON {
     signing.profiles = {
       server = { inherit (defaults) expiry; usages = [ "signing" "key encipherment" "client auth" "server auth" ]; };
       client = { inherit (defaults) expiry; usages = [ "signing" "key encipherment" "client auth" "server auth" ]; };

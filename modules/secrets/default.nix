@@ -1,4 +1,4 @@
-{ config, pkgs, lib, ... }:
+{ config, lib, ... }:
 
 # TODO: Reload services after secret has changed
 
@@ -33,7 +33,7 @@ let
     '';
   };
 
-  buildScript = pkgs.writeScriptBin "build-secrets-${config.networking.hostName}" (
+  buildScript = pkgs: pkgs.writeScriptBin "build-secrets-${config.networking.hostName}" (
     let
       files = (
         toposort
@@ -45,7 +45,7 @@ let
       set -o errexit
       set -o nounset
       set -o pipefail
-      export PATH="${makeBinPath (with pkgs.buildPackages; [ cfssl gnupg jq sops ])}:$PATH"
+      export PATH="${makeBinPath (with pkgs; [ cfssl gnupg jq sops ])}:$PATH"
 
       out=$1
 
@@ -152,7 +152,7 @@ in
     };
 
     secrets.generator = mkOption {
-      type = path;
+      type = anything;
       default = buildScript;
       readOnly = true;
     };

@@ -35,6 +35,7 @@
           {
             _module.args = {
               pkgs = nixpkgsFor."${buildSystem}";
+              hostPkgs = nixpkgsFor."${buildSystem}";
               terraformModulesPath = ./resources;
               inputs = {
                 inherit self;
