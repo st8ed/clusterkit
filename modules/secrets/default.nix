@@ -15,8 +15,8 @@ let
       if ! gpg --homedir ./gpghome --list-keys ${uid}; then
           gpg --homedir ./gpghome --batch --gen-key <<EOF
       %no-protection
-      Key-Type: RSA 
-      Subkey-Type: default
+      Key-Type: RSA
+      Subkey-Type: RSA
       Name-Email: ${uid}
       Expire-Date: 0
       EOF
