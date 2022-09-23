@@ -3,13 +3,12 @@ pkgs.writeShellApplication {
   name = "cluster-build";
   runtimeInputs = [ jq ];
   text = ''
-    cluster=''${1:-default}
     CLUSTER_FLAKE=''${CLUSTER_FLAKE:-.}
     BUILD_DIR=./build
     NIX_OPTS=--no-warn-dirty
     
     nodes="$(nix $NIX_OPTS eval \
-        "$CLUSTER_FLAKE#clusters.$cluster.config.nodes" \
+        "$CLUSTER_FLAKE#cluster.config.nodes" \
         --apply 'x: (builtins.concatStringsSep " " (builtins.attrNames x))' \
         \
         | tr -d '"'
@@ -19,7 +18,7 @@ pkgs.writeShellApplication {
     
     echo "Building node secrets"
     generators="$(nix $NIX_OPTS build \
-        "$CLUSTER_FLAKE#clusters.$cluster.config.build.secrets"\
+        "$CLUSTER_FLAKE#cluster.config.build.secrets"\
          --no-link --json | jq -r .[0].outputs.out
      )"
     mkdir -p "$BUILD_DIR/secrets"
@@ -46,6 +45,6 @@ pkgs.writeShellApplication {
     echo "Building systems"
     nix $NIX_OPTS build \
         --profile "$BUILD_DIR/systems/profile" \
-        "$CLUSTER_FLAKE#clusters.$cluster.config.build.systems"
+        "$CLUSTER_FLAKE#cluster.config.build.systems"
   '';
 }

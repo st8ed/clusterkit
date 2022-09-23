@@ -139,7 +139,7 @@ in
 
           flakeUri = mkOption {
             type = package;
-            default = "${inputs.self}#clusters.default.config.nodes.${name}";
+            default = "${inputs.self}#cluster.config.nodes.${name}";
           };
 
           build = {

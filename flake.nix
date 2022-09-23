@@ -64,7 +64,5 @@
       apps = forAllSystems (system: {
         inherit (nixpkgsFor."${system}") cluster-build cluster-update nixos-switch nixos-deploy;
       });
-
-      clusters = rec { };
     };
 }

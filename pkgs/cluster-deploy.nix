@@ -19,14 +19,15 @@ in pkgs.writeShellApplication {
   ])) ];
   text = ''
     operation=''${1:-apply}
-    cluster=default
+    shift 1
+
     CLUSTER_FLAKE=''${CLUSTER_FLAKE:-.}
     STATE_DIR=./state
     NIX_OPTS=--no-warn-dirty
     
     echo "Building cluster.tf"
     nix $NIX_OPTS build \
-        "$CLUSTER_FLAKE#clusters.$cluster.config.deployments.resourcePackage" \
+        "$CLUSTER_FLAKE#cluster.config.deployments.resourcePackage" \
         -o "$STATE_DIR/cluster.tf"
         
     echo "Running Terraform"
