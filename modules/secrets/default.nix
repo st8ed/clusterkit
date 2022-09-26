@@ -10,10 +10,8 @@ let
   generators = {
     readSecretFile = path: secret: ''secret_value="$(cat ${escapeShellArg path})"'';
     mkGPGKey = { uid, useForSecrets ? true, extraSecretKeys ? [ ] }: secret: ''
-      mkdir -p gpghome
-      chmod -R 700 gpghome
-      if ! gpg --homedir ./gpghome --list-keys ${uid}; then
-          gpg --homedir ./gpghome --batch --gen-key <<EOF
+      if ! gpg --list-keys ${uid}; then
+          gpg --batch --gen-key <<EOF
       %no-protection
       Key-Type: RSA
       Subkey-Type: RSA
@@ -24,12 +22,11 @@ let
 
       ${optionalString useForSecrets ''
       SOPS_PGP_FP='${concatStringsSep "," extraSecretKeys}'
-      SOPS_PGP_FP+=",$(gpg --homedir ./gpghome --fingerprint "${uid}" | sed -n '/^\s/s/\s*//p' | tr -d ' ')"
+      SOPS_PGP_FP+=",$(gpg --fingerprint "${uid}" | sed -n '/^\s/s/\s*//p' | tr -d ' ')"
       export SOPS_PGP_FP
-      export GNUPGHOME="$(realpath ./gpghome)"
       ''}
 
-      secret_value="$(gpg --homedir ./gpghome --export-secret-key --armor ${uid})"
+      secret_value="$(gpg --export-secret-key --armor ${uid})"
     '';
   };
 
