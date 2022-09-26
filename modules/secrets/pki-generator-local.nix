@@ -31,34 +31,47 @@ in
   config = {
     secrets.generators = {
       mkCa = { csr, path }: secret: ''
-        if [ ! -f "${path}" ]; then
-          mkdir -p "${builtins.dirOf path}" 
-          pushd "${builtins.dirOf path}" >/dev/null
+        if [ ! -f "${path}.gpg" ]; then
+          tmpkeydir=$(mktemp -d)
 
           cfssl gencert -loglevel 2 -initca "${mkCsr secret.name csr}" \
-            | cfssljson -bare "${lib.removeSuffix "-key.pem" (builtins.baseNameOf path)}"
+            | cfssljson -bare "$tmpkeydir"/ca
 
-          popd
+          mkdir -p "${builtins.dirOf path}"
+          cp "$tmpkeydir"/ca.pem "${lib.removeSuffix "-key.pem" path}.pem" 
+          gpg --encrypt -r "${config.secrets.gpgUser}" \
+            <"$tmpkeydir"/ca-key.pem \
+            >"${path}.gpg"
+
+          rm -rf "$tmpkeydir"
         fi
 
-        secret_value="$(cat "${path}")"
+        secret_value="$(gpg --decrypt "${path}.gpg")"
       '';
 
       mkCert = { csr, path, ca_path, profile }: secret: ''
-        if [ ! -f "${path}" ]; then
-          mkdir -p "${builtins.dirOf path}" 
+        if [ ! -f "${path}.gpg" ]; then
+          tmpkeydir=$(mktemp -d)
 
           cfssl gencert \
               -loglevel 2 \
               -ca "${lib.removeSuffix "-key.pem" ca_path}.pem" \
-              -ca-key "${ca_path}" \
+              -ca-key <(gpg --decrypt "${ca_path}.gpg") \
               -config "${caConfig}" \
               -profile "${profile}" \
               "${mkCsr secret.name csr}" \
-              | cfssljson -bare "${lib.removeSuffix "-key.pem" path}"
+              | cfssljson -bare "$tmpkeydir"/cert
+          
+          mkdir -p "${builtins.dirOf path}" 
+          cp "$tmpkeydir"/cert.pem "${lib.removeSuffix "-key.pem" path}.pem" 
+          gpg --encrypt -r "${config.secrets.gpgUser}" \
+            <"$tmpkeydir"/cert-key.pem \
+            >"${path}.gpg"
+
+          rm -rf "$tmpkeydir"
         fi
 
-        secret_value="$(cat "${path}")"
+        secret_value="$(gpg --decrypt "${path}.gpg")"
       '';
     };
   };

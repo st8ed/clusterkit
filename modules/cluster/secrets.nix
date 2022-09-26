@@ -4,11 +4,8 @@ with lib;
 
 {
   options = with types; {
-    secretsBuildDirectory = mkOption {
-      type = path;
-    };
-    secretsStoreDirectory = mkOption {
-      type = str;
+    secrets = mkOption {
+      type = attrsOf anything;
     };
 
     masterKey = {

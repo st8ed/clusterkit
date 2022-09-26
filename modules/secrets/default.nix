@@ -46,17 +46,21 @@ let
 
       out=$1
 
-      pushd "${cfg.cacheDirectory}" 
+      pushd "${cfg.storeDirectory}" 
       secrets='{}'
 
       ${concatStringsSep "\n" (map (v: ''
         secret_name="${v.name}"
       
-        echo "> $secret_name"
+        echo "Generate $secret_name"
         ${v.value.generator v}
-
+      '') files) }
+      
+      ${concatStringsSep "\n" (map (v: ''
         ${if v.value.mount.enable then ''
-        echo "!!! > Embedding ${v.name}"
+        secret_name="${v.name}"
+        
+        echo "Embed $secret_name"
         secrets=$(
           echo -n "$secrets" | jq \
             --rawfile k <(echo -n "$secret_value") \
@@ -64,7 +68,7 @@ let
         )
         '' else ""}
       '') files) }
-
+      
       popd
 
       echo -n "$secrets" \
@@ -75,6 +79,8 @@ let
 in
 {
   imports = [
+    ./kubeconfig-generator-local.nix
+
     ./pki.nix
     ./pki-generator-local.nix
   ];
@@ -144,7 +150,11 @@ in
       type = path;
     };
 
-    secrets.cacheDirectory = mkOption {
+    secrets.storeDirectory = mkOption {
+      type = str;
+    };
+
+    secrets.gpgUser = mkOption {
       type = str;
     };
 

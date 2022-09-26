@@ -61,24 +61,12 @@ in
 
     secrets.files."cluster-admin.kubeconfig" = {
       needs = [ "kubernetes-cluster-admin-key.pem" ];
-      generator = with pkgs; secret: ''
-        if [ ! -f "cluster-admin.kubeconfig" ]; then
-          ${kubectl}/bin/kubectl --kubeconfig cluster-admin.kubeconfig config set-credentials cluster-admin \
-                --embed-certs=true \
-              --client-certificate=${config.secrets.pki.kubernetes-cluster-admin.path}.pem \
-              --client-key=${config.secrets.pki.kubernetes-cluster-admin.path}-key.pem
-          ${kubectl}/bin/kubectl --kubeconfig cluster-admin.kubeconfig config set-cluster localhost \
-                --embed-certs=true \
-              --certificate-authority=${config.secrets.pki.kubernetes-ca.path}.pem \
-              --server=https://${config.networking.fqdn}:6443
-          ${kubectl}/bin/kubectl --kubeconfig cluster-admin.kubeconfig config set-context default \
-              --user cluster-admin \
-              --cluster localhost
-          ${kubectl}/bin/kubectl --kubeconfig cluster-admin.kubeconfig config use-context default
-        fi
-
-        secret_value="$(cat cluster-admin.kubeconfig)"
-      '';
+      generator = config.secrets.generators.mkKubeconfig {
+        username = "cluster-admin";
+        ca = "kubernetes-ca";
+        cert = "kubernetes-cluster-admin";
+        path = "cluster-admin.kubeconfig";
+      };
 
       mount.enable = true;
       mount.path = "/etc/kubernetes/cluster-admin.kubeconfig";

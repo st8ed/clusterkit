@@ -46,37 +46,39 @@ in
       '';
       swanctl = {
         authorities.ca.cacert = "ca.pem";
-        connections = lib.mapAttrs (name: remote: {
-          version = 2;
-          proposals = [ "aes256-sha384-x25519" ];
-          mobike = true;
+        connections = lib.mapAttrs
+          (name: remote: {
+            version = 2;
+            proposals = [ "aes256-sha384-x25519" ];
+            mobike = true;
 
-          # local_addrs = [ local.addr ]; # use interface address
-          local_port = ports.ike;
-          local.main = {
-            auth = "pubkey";
-            id = "CN=${local.id}";
-          };
-
-          remote_addrs = [ remote.addr ];
-          remote_port = ports.ike;
-          remote.main = {
-            auth = "pubkey";
-            id = "CN=${remote.id}";
-          };
-
-          children = {
-            "${name}" = {
-              esp_proposals = [ "aes256gcm16-x25519" ];
-
-              local_ts = local.ts;
-              remote_ts = remote.ts;
-
-              # updown = "${pkgs.strongswan}/libexec/ipsec/_updown iptables";
-              start_action = "trap";
+            # local_addrs = [ local.addr ]; # use interface address
+            local_port = ports.ike;
+            local.main = {
+              auth = "pubkey";
+              id = "CN=${local.id}";
             };
-          };
-        }) cfg.connections;
+
+            remote_addrs = [ remote.addr ];
+            remote_port = ports.ike;
+            remote.main = {
+              auth = "pubkey";
+              id = "CN=${remote.id}";
+            };
+
+            children = {
+              "${name}" = {
+                esp_proposals = [ "aes256gcm16-x25519" ];
+
+                local_ts = local.ts;
+                remote_ts = remote.ts;
+
+                # updown = "${pkgs.strongswan}/libexec/ipsec/_updown iptables";
+                start_action = "trap";
+              };
+            };
+          })
+          cfg.connections;
       };
     };
 

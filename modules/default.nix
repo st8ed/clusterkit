@@ -36,25 +36,25 @@ with lib;
       config.secrets.files."ssh-master.pub".content
     ];
 
-    secrets.buildDirectory = clusterConfig.secretsBuildDirectory;
-    secrets.cacheDirectory = clusterConfig.secretsStoreDirectory;
+    secrets = clusterConfig.secrets // {
 
-    secrets.files = with config.secrets.generators; {
-      "ssh-master.pub" = {
-        mount.enable = false;
-        content = clusterConfig.masterKey.ssh;
-      };
-
-      host-key = {
-        generator = mkGPGKey {
-          uid = "root@${config.networking.hostName}";
-
-          useForSecrets = true;
-          extraSecretKeys = [
-            clusterConfig.masterKey.gpg
-          ];
+      files = with config.secrets.generators; {
+        "ssh-master.pub" = {
+          mount.enable = false;
+          content = clusterConfig.masterKey.ssh;
         };
-        mount.enable = true;
+
+        host-key = {
+          generator = mkGPGKey {
+            uid = "root@${config.networking.hostName}";
+
+            useForSecrets = true;
+            extraSecretKeys = [
+              clusterConfig.masterKey.gpg
+            ];
+          };
+          mount.enable = true;
+        };
       };
     };
   };

@@ -28,9 +28,11 @@ with lib;
               node.config.system.build.toplevel;
           }
           )
-          (with builtins; filter (node: 
-            !config.deployments.nodes."${node.config.networking.hostName}".build.remote
-            ) (attrValues config.nodes))
+          (with builtins; filter
+            (node:
+              !config.deployments.nodes."${node.config.networking.hostName}".build.remote
+            )
+            (attrValues config.nodes))
         ) ++ [
           { name = "metadata.json"; path = config.build.metadata; }
         ]);
