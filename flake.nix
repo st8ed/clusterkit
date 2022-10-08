@@ -35,8 +35,6 @@
           {
             _module.args = {
               pkgs = nixpkgsFor."${buildSystem}";
-              hostPkgs = nixpkgsFor."${buildSystem}";
-              terraformModulesPath = ./resources;
               inputs = {
                 inherit self;
               };
@@ -52,6 +50,7 @@
 
       overlay = self: super: {
         cluster-build = self.callPackage ./pkgs/cluster-build.nix { };
+        cluster-deploy = self.callPackage ./pkgs/cluster-deploy.nix { };
         cluster-update = self.callPackage ./pkgs/cluster-update.nix { };
         nixos-switch = self.callPackage ./pkgs/nixos-switch.nix { };
         nixos-deploy = self.callPackage ./pkgs/nixos-deploy.nix { };

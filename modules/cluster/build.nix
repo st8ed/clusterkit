@@ -1,4 +1,4 @@
-{ config, lib, hostPkgs, terraformModulesPath, ... }:
+{ config, lib, pkgs, ... }:
 
 with lib;
 
@@ -7,11 +7,11 @@ with lib;
     secrets = mkOption {
       readOnly = true;
       type = path;
-      default = with hostPkgs; buildEnv {
+      default = with pkgs; buildEnv {
         name = "cluster-secrets";
         paths = map
           (node:
-            (node.config.secrets.generator hostPkgs).out
+            (node.config.secrets.generator pkgs).out
           )
           (builtins.attrValues config.nodes);
       };
@@ -20,7 +20,7 @@ with lib;
     systems = mkOption {
       readOnly = true;
       type = path;
-      default = with hostPkgs; linkFarm "cluster-systems"
+      default = with pkgs; linkFarm "cluster-systems"
         ((map
           (node: {
             name = node.config.networking.hostName;
@@ -28,22 +28,19 @@ with lib;
               node.config.system.build.toplevel;
           }
           )
-          (builtins.attrValues config.nodes)
+          (with builtins; filter (node: 
+            !config.deployments.nodes."${node.config.networking.hostName}".build.remote
+            ) (attrValues config.nodes))
         ) ++ [
           { name = "metadata.json"; path = config.build.metadata; }
-          { name = "terraform"; path = config.build.terraformModules; }
         ]);
     };
 
     metadata = mkOption {
       type = path;
-      default = with hostPkgs; writeText "cluster-metadata.json" (builtins.toJSON {
+      default = with pkgs; writeText "cluster-metadata.json" (builtins.toJSON {
         inherit (config) pools;
       });
-    };
-
-    terraformModules = mkOption {
-      default = terraformModulesPath;
     };
   };
 }

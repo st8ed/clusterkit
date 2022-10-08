@@ -36,10 +36,12 @@ pkgs.writeShellApplication {
             "$generator_latest" "$secrets"
             
             git add "$secrets"
-        fi    
+        fi
     done
     
     ln -sfT "$generators" "$BUILD_DIR"/build-secrets
+    
+    mkdir -p "$BUILD_DIR"/systems
     
     echo "Building systems"
     nix $NIX_OPTS build \

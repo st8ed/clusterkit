@@ -10,7 +10,7 @@ in
 {
   config = mkIf cfg.enable {
     networking = {
-      dhcpcd.denyInterfaces = [ "mynet*" "flannel*" ];
+      dhcpcd.denyInterfaces = [ "mynet*" "flannel*" "veth*" ];
       firewall.allowedUDPPorts = [
         8285 # flannel udp
         8472 # flannel vxlan
@@ -34,16 +34,6 @@ in
         caFile = config.secrets.pki.kubernetes-ca.certFile;
         certFile = config.secrets.pki.kubernetes-flannel-client.certFile;
         keyFile = config.secrets.pki.kubernetes-flannel-client.keyFile;
-      };
-    };
-
-    # https://github.com/flannel-io/flannel/issues/1155
-    services.resolved.enable = false;
-    systemd.network = {
-      enable = true;
-      links."10-flannel" = {
-        matchConfig.OriginalName = "flannel*";
-        linkConfig.MACAddressPolicy = "none";
       };
     };
 
