@@ -28,8 +28,23 @@ in
         };
       };
 
-      corefile = mkOption {
+      extraConfig = mkOption {
         type = types.str;
+        default = "";
+      };
+
+      forwardConfig = mkOption {
+        type = types.str;
+        default = ''
+          forward . tls://1.1.1.1 tls://1.0.0.1 {
+              tls_servername cloudflare-dns.com
+              health_check 5s
+          }
+        '';
+      };
+
+      corefile = mkOption {
+        type = types.lines;
         default = ''
           .:53 {
             errors
@@ -37,17 +52,23 @@ in
               lameduck 5s
             }
             ready
+            
             kubernetes ${config.domain} in-addr.arpa ip6.arpa {
               pods insecure
               fallthrough in-addr.arpa ip6.arpa
             }
+            
             prometheus :9153
-            forward . /etc/resolv.conf
+            
+            ${cfg.forwardConfig}
+            
             cache 30
             loop
             reload
             loadbalance
-          }'';
+          }
+          ${cfg.extraConfig}
+        '';
       };
     };
   };

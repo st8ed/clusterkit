@@ -46,7 +46,7 @@ in
           rm -rf "$tmpkeydir"
         fi
 
-        secret_value="$(gpg --decrypt "${path}.gpg")"
+        secret_value="$(gpg --decrypt "${path}.gpg" 2>/dev/null)"
       '';
 
       mkCert = { csr, path, ca_path, profile }: secret: ''
@@ -56,7 +56,7 @@ in
           cfssl gencert \
               -loglevel 2 \
               -ca "${lib.removeSuffix "-key.pem" ca_path}.pem" \
-              -ca-key <(gpg --decrypt "${ca_path}.gpg") \
+              -ca-key <(gpg --decrypt "${ca_path}.gpg" 2>/dev/null) \
               -config "${caConfig}" \
               -profile "${profile}" \
               "${mkCsr secret.name csr}" \
@@ -71,7 +71,7 @@ in
           rm -rf "$tmpkeydir"
         fi
 
-        secret_value="$(gpg --decrypt "${path}.gpg")"
+        secret_value="$(gpg --decrypt "${path}.gpg" 2>/dev/null)"
       '';
     };
   };

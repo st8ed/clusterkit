@@ -53,12 +53,7 @@ let
         secret_name="${v.name}"
       
         echo "Generate $secret_name"
-        ${v.value.generator v}
-      '') files) }
-      
-      ${concatStringsSep "\n" (map (v: ''
-        ${if v.value.mount.enable then ''
-        secret_name="${v.name}"
+        ${v.value.generator v}        
         
         echo "Embed $secret_name"
         secrets=$(
@@ -66,7 +61,6 @@ let
             --rawfile k <(echo -n "$secret_value") \
             ". + {\"$secret_name\": \$k}"
         )
-        '' else ""}
       '') files) }
       
       popd
